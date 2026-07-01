@@ -17,12 +17,16 @@
   .logo{display:flex;align-items:center;gap:8px;font-size:19px;font-weight:600;}
   .logo .mk{width:26px;height:26px;border-radius:8px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;}
   .hicons{display:flex;gap:16px;color:var(--muted);font-size:19px;}
+  .topbar{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--bg);}
+  .brand{font-size:19px;font-weight:600;color:var(--ink);}
+  .topacts{display:flex;gap:22px;}
+  .topacts button{background:none;border:none;font-size:21px;line-height:1;color:var(--ink);cursor:pointer;padding:4px 2px;}
   .dot{position:relative;}.dot::after{content:"";position:absolute;top:-1px;right:-1px;width:7px;height:7px;border-radius:50%;background:#d8472f;}
   .chips{display:flex;gap:8px;padding:0 18px 12px;overflow-x:auto;}
   .chip{flex:0 0 auto;font-size:13px;padding:7px 15px;border-radius:20px;background:var(--surface);border:1px solid var(--line);color:var(--muted);cursor:pointer;}
   .chip.on{background:var(--ink);color:#fff;border-color:var(--ink);}
   .banner{display:flex;align-items:center;gap:9px;margin:0 18px 16px;background:var(--fambg);border-radius:12px;padding:11px 14px;font-size:13px;color:var(--fam);}
-  .feed{padding:0 18px 90px;}
+  .feed{padding:0 18px 28px;}
   .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:15px 16px;margin-bottom:13px;cursor:pointer;transition:transform .08s;}
   .card:active{transform:scale(.99);}
   .crow{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
@@ -108,25 +112,26 @@ body.dark{--bg:#15171a;--surface:#1e2126;--ink:#e9eaec;--muted:#9aa0a6;--hint:#7
 .segbtns button.on{background:var(--ink);color:#fff}
 .bmrow{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin-bottom:10px;cursor:pointer}
 .bmstar{cursor:pointer;font-size:15px;font-weight:600;color:var(--fam,#0c447c);display:inline-block;padding:4px 0}
+.monthdiv{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.04em;margin:14px 2px 8px}
+.loadmore{text-align:center;padding:13px;margin:6px 0 12px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);font-size:13px;cursor:pointer}
 </style>
 </head>
 <body>
 <div class="phone">
   <div class="status"><span id="clock">9:41</span><span>CasePocket AU · 判决精读</span><span>●●●</span></div>
+  <div class="topbar"><div class="brand">CasePocket</div><div class="topacts"><button onclick="openFLAList()" title="法规">§</button><button onclick="openBookmarks()" title="收藏">★</button><button onclick="openSettings()" title="设置">⚙</button></div></div>
   <div class="scroll" id="home">
-    <header><div class="logo"><span class="mk">§</span>CasePocket</div><div class="langbar"><button class="langopt" data-l="en" onclick="setLang('en')">EN</button><button class="langopt on" data-l="simp" onclick="setLang('simp')">简</button><button class="langopt" data-l="trad" onclick="setLang('trad')">繁</button></div></header>
     <div class="chips" id="chips"></div>
     <input id="q" oninput="render()" placeholder="搜索案件…" style="width:100%;box-sizing:border-box;padding:9px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;margin:2px 0 4px;background:var(--surface);color:var(--ink)">
+    <div id="viewbar" style="margin:4px 0 6px"></div>
     <div class="banner">✦ CasePocket</div>
     <div class="feed" id="feed"></div>
   </div>
   <div id="detail">
-    <div class="dhead"><button class="back" onclick="goBack()">‹</button><div class="dhttl" id="dh"></div>
-      <div class="langbar"><button class="langopt" data-l="en" onclick="setLang('en')">EN</button><button class="langopt" data-l="simp" onclick="setLang('simp')">简</button><button class="langopt" data-l="trad" onclick="setLang('trad')">繁</button></div></div>
+    <div class="dhead"><button class="back" onclick="goBack()">‹</button><div class="dhttl" id="dh"></div></div>
     <div class="dscroll" id="dbody"></div>
   </div>
   <div class="ov" id="ov" onclick="if(event.target===this)closeSheet()"><div class="sheet" id="sheet"></div></div>
-  <nav><span class="a" onclick="closeDetail()" style="cursor:pointer" title="首页">▤</span><span onclick="openFLAList()" style="cursor:pointer" title="法规">§</span><span onclick="openBookmarks()" style="cursor:pointer" title="收藏">★</span><span onclick="openSettings()" style="cursor:pointer" title="设置">⚙</span></nav>
 </div>
 <script>let uiLang="zh";
 const UI={pick:{zh:"选择你想看的板块 · 点击进入",en:"Choose a section to open"},
@@ -137,7 +142,7 @@ const UI={pick:{zh:"选择你想看的板块 · 点击进入",en:"Choose a secti
 
 
 let curContent=null;
-const STORE={"manifest":[],"cases":{},"legislation":{},"legIndex":["fla"]};
+const STORE={"manifest":[],"cases":{},"legislation":{},"legIndex":[]};
 const CONFIG={"mode":"remote","base":"https://sadegc.github.io/casepocket-data/"};
 const _caseCache={};let _cb='';
 function loadingHTML(){return '<div style="padding:48px 20px;text-align:center;color:var(--hint);font-size:13px">'+(uiLang==='en'?'Loading…':'加载中…')+'</div>';}
@@ -153,7 +158,7 @@ let _conv=false;
 function _ctn(t){if(t&&t.nodeType===3){const c=s2t(t.nodeValue);if(c!==t.nodeValue)t.nodeValue=c;}}
 function _ctree(node){if(!node)return;if(node.nodeType===3){_ctn(node);return;}if(node.nodeType===1){const tn=node.tagName;if(tn==='SCRIPT'||tn==='STYLE'||tn==='INPUT'||tn==='TEXTAREA')return;const w=document.createTreeWalker(node,NodeFilter.SHOW_TEXT);const arr=[];let x;while(x=w.nextNode())arr.push(x);arr.forEach(_ctn);}}
 function convAll(){if(zhScript!=='trad')return;_conv=true;_ctree(document.body);_conv=false;}
-function updateBanner(){const b=document.querySelector('.banner');if(!b)return;const n=(STORE.manifest||[]).length;const en=uiLang==='en';b.innerHTML=en?('✦ <b style="margin:0 3px">'+n+'</b> judgment deep-dives'):('✦ 共 <b style="margin:0 3px">'+n+'</b> 篇判决精读');}
+function updateBanner(){const b=document.querySelector('.banner');if(!b)return;const n=(STORE.manifest||[]).length;const en=uiLang==='en';b.innerHTML=en?('✦ <b style="margin:0 3px">'+n+'</b> judgments'):('✦ 共 <b style="margin:0 3px">'+n+'</b> 篇判决');}
 let PREFS={};try{PREFS=JSON.parse(localStorage.getItem('cp_prefs'))||{};}catch(e){}
 let BM=[];try{BM=JSON.parse(localStorage.getItem('cp_bm'))||[];}catch(e){}
 function savePrefs(){try{localStorage.setItem('cp_prefs',JSON.stringify(PREFS));}catch(e){}}
@@ -161,13 +166,15 @@ function saveBM(){try{localStorage.setItem('cp_bm',JSON.stringify(BM));}catch(e)
 function applyPrefs(){const b=document.body;if(!b)return;b.classList.remove('fs-s','fs-l','fs-xl');if(PREFS.fs&&PREFS.fs!=='m')b.classList.add('fs-'+PREFS.fs);let dark=PREFS.theme==='dark'||(PREFS.theme==='auto'&&window.matchMedia&&matchMedia('(prefers-color-scheme:dark)').matches);b.classList.toggle('dark',!!dark);}
 function setFs(v){PREFS.fs=v;savePrefs();applyPrefs();if(mode==='settings')openSettings();}
 function setTheme(v){PREFS.theme=v;savePrefs();applyPrefs();if(mode==='settings')openSettings();}
+function checkUpdate(){try{var u=location.href.split('#')[0].split('?')[0];location.replace(u+'?_v='+Date.now());}catch(e){try{location.reload();}catch(_){}}}
 function openSettings(){mode='settings';const en=uiLang==='en';dh.textContent=en?'Settings':'设置';setLangBtns();
  const fs=PREFS.fs||'m',th=PREFS.theme||'light',lg=uiLang==='en'?'en':(zhScript==='trad'?'trad':'simp');
  const fsl={s:'A-',m:en?'Std':'标准',l:'A+',xl:'A++'};
  let h='<div class="setrow"><div class="setlbl">'+(en?'Font size':'字体大小')+'</div><div class="segbtns">'+['s','m','l','xl'].map(v=>'<button class="'+(fs===v?'on':'')+'" onclick="setFs(\''+v+'\')">'+fsl[v]+'</button>').join('')+'</div></div>';
  h+='<div class="setrow"><div class="setlbl">'+(en?'Dark mode':'深色模式')+'</div><div class="segbtns">'+[['light',en?'Off':'关'],['dark',en?'On':'开'],['auto',en?'Auto':'跟随系统']].map(a=>'<button class="'+(th===a[0]?'on':'')+'" onclick="setTheme(\''+a[0]+'\')">'+a[1]+'</button>').join('')+'</div></div>';
  h+='<div class="setrow"><div class="setlbl">'+(en?'Language':'语言')+'</div><div class="segbtns">'+[['en','EN'],['simp','简'],['trad','繁']].map(a=>'<button class="'+(lg===a[0]?'on':'')+'" onclick="setLang(\''+a[0]+'\')">'+a[1]+'</button>').join('')+'</div></div>';
- h+='<div class="disc">'+(en?'Settings are saved on this device and kept next time you open the app.':'设置保存在本机,下次打开仍生效。')+'</div>';
+ h+='<div class="setrow"><div class="setlbl">'+(en?'Update':'更新')+'</div><div class="segbtns"><button onclick="checkUpdate()">'+(en?'Get latest version':'更新到最新版')+'</button></div></div>';
+ h+='<div class="disc">'+(en?'“Get latest version” fetches the newest app from the server and reloads. Settings are saved on this device and kept next time you open the app.':'「更新到最新版」会从服务器获取最新 App 并重新加载。设置保存在本机,下次打开仍生效。')+'</div>';
  dbody.innerHTML=h;detail.classList.add('show');dbody.scrollTop=0;}
 function isBM(key){return BM.some(b=>b.key===key);}
 function toggleBM(key){const c=(STORE.manifest||[]).find(x=>x.contentId===key)||curCase;if(isBM(key)){BM=BM.filter(b=>b.key!==key);}else if(c){BM.push({key:key,id:c.id,name:c.name,cit:c.cit,one:c.one,issue:c.issue,legnums:c.legnums,areaTag:c.areaTag});}saveBM();if(mode==='index')renderIndex();else if(mode==='bookmarks')openBookmarks();}
@@ -197,17 +204,39 @@ let curFilter='all';
 function fmtDate(s){if(!s)return '';const d=new Date(s);if(isNaN(d.getTime()))return s;const mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];if(uiLang==='en')return d.getDate()+' '+mon[d.getMonth()]+' '+d.getFullYear();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
 function fields(){const seen={},out=[];(STORE.manifest||[]).forEach(c=>{const f=c.field;if(f&&f.key&&!seen[f.key]){seen[f.key]=1;out.push(f);}});return out;}
 function renderChips(){const el=document.getElementById('chips');if(!el)return;const en=uiLang==='en';let h='<div class="chip'+(curFilter==='all'?' on':'')+'" data-f="all">'+(en?'Following':'关注')+'</div>';fields().forEach(f=>{h+='<div class="chip'+(curFilter===f.key?' on':'')+'" data-f="'+f.key+'">'+(f[uiLang]||f.zh||f.key)+'</div>';});h+='<div class="chip" data-f="__leg">'+(en?'Legislation':'法规')+'</div>';el.innerHTML=h;el.querySelectorAll('.chip').forEach(ch=>{ch.onclick=()=>{const k=ch.dataset.f;if(k==='__leg'){openFLAList();return;}curFilter=k;renderChips();render();};});}
-function render(){if(!feed)return;feed.innerHTML="";const en=uiLang==='en';const qi=document.getElementById('q');const q=((qi&&qi.value)||'').toLowerCase().trim();
- const items=(STORE.manifest||[]).filter(c=>{if(curFilter!=='all'&&!(c.field&&c.field.key===curFilter))return false;if(q){const hay=((c.name||'')+' '+(c.cit||'')+' '+(c.one?(c.one.zh+' '+c.one.en):'')+' '+(c.areaTag?(c.areaTag.zh+' '+c.areaTag.en):'')).toLowerCase();if(!hay.includes(q))return false;}return true;});
- if(!items.length){feed.innerHTML='<div style="padding:40px 20px;text-align:center;color:var(--hint);font-size:13px">'+(en?'No matching cases.':'没有匹配的案件。')+'</div>';updateBanner();return;}
- items.forEach(c=>{const d=document.createElement('div');d.className="card";d.onclick=()=>openDetail(c.id);const tag=(c.areaTag?c.areaTag[uiLang]:(c.tag?c.tag[uiLang]:''));
-  d.innerHTML='<div class="crow"><span class="tag '+(c.cls==='fam'?'t-fam':'t-env')+'">'+tag+(c.div?' · '+c.div:'')+'</span><span class="ago">'+fmtDate(c.date)+'</span></div>'
-   +'<div class="cname">'+c.name+'</div><div class="ccit">'+c.cit+'</div>'
-   +'<span class="badge">'+(en?'★ Full deep-dive':'★ 判决精读 · 完整版')+'</span>'
-   +'<div class="csum"><div class="lab">'+(en?'✦ AI summary':'✦ AI 摘要')+'</div><p>'+c.one[uiLang]+'</p></div>'
-   +'<button class="openbtn" onclick="event.stopPropagation();openDetail(\''+c.id+'\')">'+(en?'Read deep-dive ›':'阅读判决精读 ›')+'</button>';
-  feed.appendChild(d);});
+let homeView='latest',browseCourt=null,browseYear=null,_curItems=[],_shown=0,_renderedTo=0,_lastMonth='';
+function citParts(cit){const m=String(cit||'').match(/\[(\d{4})\]\s+([A-Za-z0-9]+)\s+/);return m?{year:m[1],court:m[2]}:{year:'—',court:'—'};}
+function monthLabel(s){const d=new Date(s);if(isNaN(d.getTime()))return uiLang==='en'?'Other':'其他';const mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return uiLang==='en'?(mon[d.getMonth()]+' '+d.getFullYear()):(d.getFullYear()+'年'+(d.getMonth()+1)+'月');}
+function monthKey(s){const d=new Date(s);return isNaN(d.getTime())?'x':(d.getFullYear()+'-'+(d.getMonth()+1));}
+function caseCard(c){const en=uiLang==='en';const d=document.createElement('div');d.className='card';d.onclick=()=>openDetail(c.id);const tag=(c.areaTag?c.areaTag[uiLang]:(c.tag?c.tag[uiLang]:''));
+ d.innerHTML='<div class="crow"><span class="tag '+(c.cls==='fam'?'t-fam':'t-env')+'">'+tag+(c.div?' · '+c.div:'')+'</span><span class="ago">'+fmtDate(c.date)+'</span></div>'
+  +'<div class="cname">'+c.name+'</div><div class="ccit">'+c.cit+'</div>'
+  +(c.deep?('<span class="badge">'+(en?'★ Full deep-dive':'★ 判决精读 · 完整版')+'</span>'):('<span class="badge" style="background:var(--line);color:var(--muted)">'+(en?'Standard · summary + full text':'标准 · 摘要+全文')+'</span>'))
+  +'<div class="csum"><div class="lab">'+(en?'✦ AI summary':'✦ AI 摘要')+'</div><p>'+c.one[uiLang]+'</p></div>'
+  +'<button class="openbtn" onclick="event.stopPropagation();openDetail(\''+c.id+'\')">'+(c.deep?(en?'Read deep-dive ›':'阅读判决精读 ›'):(en?'Read ›':'阅读 ›'))+'</button>';
+ return d;}
+function applyFilter(){const qi=document.getElementById('q');const q=((qi&&qi.value)||'').toLowerCase().trim();
+ return (STORE.manifest||[]).filter(c=>{if(curFilter!=='all'&&!(c.field&&c.field.key===curFilter))return false;if(q){const hay=((c.name||'')+' '+(c.cit||'')+' '+(c.one?(c.one.zh+' '+c.one.en):'')+' '+(c.areaTag?(c.areaTag.zh+' '+c.areaTag.en):'')+' '+(c.catch||'')).toLowerCase();if(!hay.includes(q))return false;}return true;});}
+function renderViewbar(){const el=document.getElementById('viewbar');if(!el)return;const en=uiLang==='en';el.innerHTML='<div class="segbtns"><button class="'+(homeView==='latest'?'on':'')+'" onclick="setHomeView(\'latest\')">'+(en?'Latest':'最新')+'</button><button class="'+(homeView==='browse'?'on':'')+'" onclick="setHomeView(\'browse\')">'+(en?'Browse by court':'按法院浏览')+'</button></div>';}
+function setHomeView(v){homeView=v;browseCourt=null;browseYear=null;render();}
+function render(){if(!feed)return;renderViewbar();_curItems=applyFilter();if(homeView==='browse'){renderBrowse();return;}_shown=Math.min(25,_curItems.length);paintLatest();}
+function paintLatest(){const en=uiLang==='en';feed.innerHTML='';_renderedTo=0;_lastMonth='';if(!_curItems.length){feed.innerHTML='<div style="padding:40px 20px;text-align:center;color:var(--hint);font-size:13px">'+(en?'No matching cases.':'没有匹配的案件。')+'</div>';updateBanner();return;}appendBatch();}
+function appendBatch(){const en=uiLang==='en';const old=feed.querySelector('.loadmore');if(old)old.remove();
+ for(let i=_renderedTo;i<_shown;i++){const c=_curItems[i];const mk=monthKey(c.date);if(mk!==_lastMonth){_lastMonth=mk;const h=document.createElement('div');h.className='monthdiv';h.textContent=monthLabel(c.date);feed.appendChild(h);}feed.appendChild(caseCard(c));}
+ _renderedTo=_shown;
+ if(_shown<_curItems.length){const more=document.createElement('div');more.className='loadmore';more.textContent=en?('Load more ('+(_curItems.length-_shown)+' more)'):('加载更多（剩 '+(_curItems.length-_shown)+'）');more.onclick=function(){_shown=Math.min(_shown+25,_curItems.length);appendBatch();};feed.appendChild(more);}
  updateBanner();}
+function renderBrowse(){const en=uiLang==='en';feed.innerHTML='';const items=_curItems;
+ if(!browseCourt){const seen={},courts=[];items.forEach(c=>{const k=citParts(c.cit).court;if(!(k in seen)){seen[k]=0;courts.push(k);}seen[k]++;});
+  courts.forEach(k=>{const r=document.createElement('div');r.className='idxrow';r.onclick=function(){browseCourt=k;render();};r.innerHTML='<div class="iln" style="width:auto;padding:0 8px">§</div><div class="ilc"><div class="ilt">'+k+'</div><div class="ilh">'+seen[k]+' '+(en?'cases':'件')+'</div></div><span class="ila">›</span>';feed.appendChild(r);});updateBanner();return;}
+ if(!browseYear){const sub=items.filter(c=>citParts(c.cit).court===browseCourt);const seen={},years=[];sub.forEach(c=>{const y=citParts(c.cit).year;if(!(y in seen)){seen[y]=0;years.push(y);}seen[y]++;});years.sort((a,b)=>String(b).localeCompare(String(a)));
+  const back=document.createElement('div');back.className='idxrow';back.onclick=function(){browseCourt=null;render();};back.innerHTML='<div class="iln" style="width:auto;padding:0 8px">‹</div><div class="ilc"><div class="ilt">'+(en?'All courts':'返回 · 全部法院')+'</div></div>';feed.appendChild(back);
+  const hd=document.createElement('div');hd.className='monthdiv';hd.textContent=browseCourt;feed.appendChild(hd);
+  years.forEach(y=>{const r=document.createElement('div');r.className='idxrow';r.onclick=function(){browseYear=y;render();};r.innerHTML='<div class="iln" style="width:auto;padding:0 8px">'+y+'</div><div class="ilc"><div class="ilt">'+y+'</div><div class="ilh">'+seen[y]+' '+(en?'cases':'件')+'</div></div><span class="ila">›</span>';feed.appendChild(r);});updateBanner();return;}
+ const back=document.createElement('div');back.className='idxrow';back.onclick=function(){browseYear=null;render();};back.innerHTML='<div class="iln" style="width:auto;padding:0 8px">‹</div><div class="ilc"><div class="ilt">'+(en?'Back to years':'返回 · 全部年份')+'</div></div>';feed.appendChild(back);
+ const hd=document.createElement('div');hd.className='monthdiv';hd.textContent=browseCourt+' · '+browseYear;feed.appendChild(hd);
+ _curItems=items.filter(c=>{const p=citParts(c.cit);return p.court===browseCourt&&p.year===browseYear;});_shown=Math.min(25,_curItems.length);_renderedTo=0;_lastMonth='';appendBatch();}
+(function(){const home=document.getElementById('home');if(!home)return;home.addEventListener('scroll',function(){if(!(homeView==='latest'||(homeView==='browse'&&browseCourt&&browseYear)))return;if(_shown>=_curItems.length)return;if(home.scrollTop+home.clientHeight>=home.scrollHeight-300){_shown=Math.min(_shown+25,_curItems.length);appendBatch();}},{passive:true});})();
 
 
 const detail=document.getElementById('detail'),dbody=document.getElementById('dbody'),dh=document.getElementById('dh');
@@ -224,6 +253,7 @@ function renderIndex(){mode="index";const c=curCase;dh.textContent=c.name;setLan
   if(c.issue) sum+=`<div class="sl2">${en?'Issue':'争议焦点'}</div><p class="sp">${c.issue[uiLang]}</p>`;
   if(c.legnums) sum+=`<div class="sl2">${en?'Legislation':'适用法条'}</div><div class="legnums">${c.legnums.map(n=>{const k=n.replace(/\s+/g,'');return (curContent&&curContent.legislation&&curContent.legislation[k])?`<span class="lnum" style="cursor:pointer" onclick="openLeg('${k}')">${n} ›</span>`:`<span class="lnum">${n}</span>`;}).join('')}</div>`;
   if(c.subseq) sum+=`<div class="sl2">${en?'Appeal / later history':'上诉 / 后续'}</div><p class="sp" style="font-size:13px">${c.subseq[uiLang]}</p>`;
+  if(c.catch) sum+=`<div class="sl2">${en?'Catchwords · official':'Catchwords · 法院官方'}</div><p class="sp" style="font-size:12.5px;color:var(--muted)">${c.catch}</p>`;
   sum+=`</div>`;
   const saved=isBM(c.contentId);
   const bm=`<div style="margin:6px 0 2px"><span class="bmstar" onclick="toggleBM('${c.contentId}')">${saved?(en?'★ Saved':'★ 已收藏'):(en?'☆ Save':'☆ 收藏')}</span></div>`;
@@ -302,8 +332,4 @@ async function bootFeed(){
  renderChips();render();if(zhScript==='trad')convAll();
 }
 function refreshContent(){if(CONFIG.mode!=='remote'){render();return;}_cb='?ts='+Date.now();STORE.manifest=[];for(const k in _caseCache)delete _caseCache[k];STORE.legislation={};feed.innerHTML='<div style="padding:40px;text-align:center;color:var(--hint);font-size:13px">'+(uiLang==='en'?'Refreshing…':'刷新中…')+'</div>';bootFeed();}
-(function(){const home=document.getElementById('home');if(!home)return;let y0=0,pulling=false,pull=0;home.addEventListener('touchstart',function(e){if(home.scrollTop<=0){y0=e.touches[0].clientY;pulling=true;pull=0;}else pulling=false;},{passive:true});home.addEventListener('touchmove',function(e){if(pulling)pull=e.touches[0].clientY-y0;},{passive:true});home.addEventListener('touchend',function(){if(pulling&&pull>80)refreshContent();pulling=false;pull=0;},{passive:true});})();
-applyPrefs();if(PREFS.lang)setLang(PREFS.lang);bootFeed();
-</script>
-</body>
-</html>
+(function(){const home=document.getElementById('home');if(!home)return;let y0=0,pulling=false,pull=0;home.addEventListener('touchstart',function(e){if(home.scrollTop<=0){y0=e.touches[0].clientY;pulling=true;pull=0;}else pulling=false;},{passive:true});home.addEventListener('touchmove',function(e){if(pulling)pull=e.touches[0].clie
